@@ -130,3 +130,29 @@ let tds = document.querySelectorAll('td');
 translateAll(ths, titles);
 translateAll(tds, decks);
 translateAll(tds, classes);
+
+function injectToAddPage(translatedDecks) {
+    if (DeckType && DeckTypePlus) {
+        let decks = JSON.parse(translatedDecks);
+
+        (function translateDeckObj() {
+            for (let obj of arguments) {
+                for (let classId of Object.keys(obj)) {
+                    let deckObj = obj[classId];
+                    for (let key of Object.keys(deckObj)) {
+                        let value = deckObj[key];
+                        deckObj[key] = decks[value] || value;
+                    }
+                }
+            }
+        })(DeckType, DeckTypePlus);
+    
+        // rebind events
+        $("input[name=myLeader]").change(function(){ChangeDeckType('my')});
+        $("input[name=vsLeader]").change(function(){ChangeDeckType('vs')});
+    }
+}
+let injectScript = document.createElement('script');
+injectScript.type = 'text/javascript';
+injectScript.innerHTML = injectToAddPage.toString() + "\ninjectToAddPage('" + JSON.stringify(decks) + "')";
+document.body.appendChild(injectScript);
